@@ -1,0 +1,84 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>Discordアカウント名入力</h2>
+
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'application:application_detail' application.id %}" class="btn btn-secondary">詳細ページに戻る</a>
+    <a href="{% url 'application:application_list' %}" class="btn btn-secondary">申し込み一覧</a>
+</div>
+
+<div class="info-box">
+    <h3>申し込み情報</h3>
+    <table>
+        <tr>
+            <th>お名前</th>
+            <td>{{ application.full_name }}</td>
+        </tr>
+        <tr>
+            <th>メールアドレス</th>
+            <td>{{ application.email }}</td>
+        </tr>
+        <tr>
+            <th>定期購入確認</th>
+            <td>
+                {% if application.subscription_verified %}
+                    <span class="badge badge-success">✅ 確認済み</span>
+                {% else %}
+                    <span class="badge badge-warning">❌ 未確認</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>突合日時</th>
+            <td>{{ application.matched_at|date:"Y年m月d日 H:i"|default:"-" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="info-box">
+    <h3>Discordアカウント名入力</h3>
+    <p class="help-text">ユーザーからDMで届いたDiscordアカウント名を入力してください。</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.discord_display_name.id_for_label }}">{{ form.discord_display_name.label }}</label>
+            {{ form.discord_display_name }}
+            {% if form.discord_display_name.help_text %}
+                <span class="help-text">{{ form.discord_display_name.help_text }}</span>
+            {% endif %}
+            {% if form.discord_display_name.errors %}
+                <div class="error-message">{{ form.discord_display_name.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="{{ form.discord_username.id_for_label }}">{{ form.discord_username.label }}</label>
+            {{ form.discord_username }}
+            {% if form.discord_username.help_text %}
+                <span class="help-text">{{ form.discord_username.help_text }}</span>
+            {% endif %}
+            {% if form.discord_username.errors %}
+                <div class="error-message">{{ form.discord_username.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary">登録</button>
+            <a href="{% url 'application:application_detail' application.id %}" class="btn btn-secondary">キャンセル</a>
+            <a href="{% url 'application:application_list' %}" class="btn btn-secondary">申し込み一覧</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+# ColorfulBox用.htaccess設定
+# 静的ファイルとメディアファイルの配信設定
+
+# Python Passenger設定
+PassengerEnabled On
+PassengerAppRoot /home/ユーザー名/project  # 実際のパスに変更
+PassengerBaseURI /
+PassengerPython /home/ユーザー名/venv/bin/python  # 仮想環境のPythonパスに変更
+
+# 静的ファイルの配信
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^static/(.*)$ /static/$1 [L]
+    RewriteRule ^media/(.*)$ /media/$1 [L]
+</IfModule>
+
+# セキュリティヘッダー
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+

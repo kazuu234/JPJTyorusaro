@@ -1,0 +1,80 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}form-container{% endblock %}
+
+{% block content %}
+<div class="info-box">
+    <h3>ご案内</h3>
+    <p>既に夜遊びサロンにご所属いただいている方で、Joy Journeyの定期購入サービスをご利用いただいている場合、夜遊びサロンの利用料金を100%値引きいたします。</p>
+    <p>以下のフォームに必要事項をご入力の上、値引き申請をお願いいたします。</p>
+    <p style="margin-top: 15px;">
+        <strong>まだ夜遊びサロンに申し込まれていない方は、</strong>
+        <a href="{% url 'application:application_form' %}" style="color: #4a90e2; text-decoration: underline;">こちらから夜遊びサロンへの申し込みをお願いいたします</a>。
+    </p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+        {{ form.last_name }}
+        {% if form.last_name.help_text %}
+            <span class="help-text">{{ form.last_name.help_text }}</span>
+        {% endif %}
+        {% if form.last_name.errors %}
+            <div class="error-message">{{ form.last_name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+        {{ form.first_name }}
+        {% if form.first_name.help_text %}
+            <span class="help-text">{{ form.first_name.help_text }}</span>
+        {% endif %}
+        {% if form.first_name.errors %}
+            <div class="error-message">{{ form.first_name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.help_text %}
+            <span class="help-text">{{ form.email.help_text }}</span>
+        {% endif %}
+        {% if form.email.errors %}
+            <div class="error-message">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group" style="margin-top: 25px;">
+        <h4 style="margin-bottom: 15px; color: #555;">Discordアカウント情報</h4>
+        <p class="help-text" style="margin-bottom: 15px;">夜遊びサロンでのDiscordアカウント情報を入力してください。</p>
+        
+        <label for="{{ form.discord_display_name.id_for_label }}">{{ form.discord_display_name.label }}</label>
+        {{ form.discord_display_name }}
+        {% if form.discord_display_name.help_text %}
+            <span class="help-text">{{ form.discord_display_name.help_text }}</span>
+        {% endif %}
+        {% if form.discord_display_name.errors %}
+            <div class="error-message">{{ form.discord_display_name.errors }}</div>
+        {% endif %}
+        
+        <label for="{{ form.discord_username.id_for_label }}" style="margin-top: 15px;">{{ form.discord_username.label }}</label>
+        {{ form.discord_username }}
+        {% if form.discord_username.help_text %}
+            <span class="help-text">{{ form.discord_username.help_text }}</span>
+        {% endif %}
+        {% if form.discord_username.errors %}
+            <div class="error-message">{{ form.discord_username.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-primary">申請する</button>
+    </div>
+</form>
+{% endblock %}
+

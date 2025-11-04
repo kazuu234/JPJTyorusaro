@@ -1,0 +1,131 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>申し込み一覧</h2>
+
+<!-- ナビゲーションタブ -->
+<ul class="nav-tabs">
+    <li class="nav-item">
+        <a href="{% url 'application:application_list' %}" class="nav-link active">申し込み一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload_list' %}" class="nav-link">CSVアップロード一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:access_grant_list' %}" class="nav-link">アクセス権付与状況</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:revocation_list' %}" class="nav-link">アクセス剥奪管理</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:discount_application_list' %}" class="nav-link">値引き申請一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload' %}" class="nav-link" style="background-color: #4a90e2; color: white;">CSVアップロード</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:data_management' %}" class="nav-link">データ管理</a>
+    </li>
+</ul>
+
+<!-- フィルタ -->
+<div class="filter-section">
+    <h4>フィルタ条件</h4>
+    <div class="filter-group">
+        <span style="font-weight: 600; margin-right: 5px;">ステータス:</span>
+        <a href="?" class="filter-btn {% if not status_filter %}active{% endif %}">すべて</a>
+        <a href="?status=pending" class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">審査中</a>
+        <a href="?status=verified" class="filter-btn {% if status_filter == 'verified' %}active{% endif %}">確認済み</a>
+        <a href="?status=completed" class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">完了</a>
+        
+        <span style="font-weight: 600; margin-left: 15px; margin-right: 5px;">確認:</span>
+        <a href="?verified=no" class="filter-btn {% if verified_filter == 'no' %}active{% endif %}">未確認</a>
+        <a href="?verified=yes" class="filter-btn {% if verified_filter == 'yes' %}active{% endif %}">確認済み</a>
+        
+        <span style="font-weight: 600; margin-left: 15px; margin-right: 5px;">アクセス:</span>
+        <a href="?access=no" class="filter-btn {% if access_filter == 'no' %}active{% endif %}">未付与</a>
+        <a href="?access=yes" class="filter-btn {% if access_filter == 'yes' %}active{% endif %}">付与済み</a>
+        
+        <span style="font-weight: 600; margin-left: 15px; margin-right: 5px;">剥奪:</span>
+        <a href="?revocation=required" class="filter-btn {% if revocation_filter == 'required' %}active{% endif %}" style="color: #dc3545;">剥奪必要</a>
+        <a href="?revocation=revoked" class="filter-btn {% if revocation_filter == 'revoked' %}active{% endif %}">剥奪済み</a>
+    </div>
+</div>
+
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>お名前</th>
+            <th>メールアドレス</th>
+            <th>突合方法</th>
+            <th>ステータス</th>
+            <th>確認済み</th>
+            <th>アクセス付与</th>
+            <th>アクセス剥奪</th>
+            <th>申し込み日時</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for app in applications %}
+        <tr>
+            <td>{{ app.id }}</td>
+            <td>{{ app.full_name }}</td>
+            <td>{{ app.email }}</td>
+            <td>{{ app.get_match_method_display|default:"未突合" }}</td>
+            <td>
+                <span class="badge badge-{{ app.status }}">
+                    {{ app.get_status_display }}
+                </span>
+            </td>
+            <td>
+                {% if app.subscription_verified %}
+                    <span class="badge badge-success">✅</span>
+                {% else %}
+                    <span class="badge badge-warning">❌</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if app.access_granted %}
+                    <span class="badge badge-success">✅ 付与済み</span>
+                {% else %}
+                    <span class="badge badge-warning">❌ 未付与</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if app.access_revocation_required %}
+                    <span class="badge badge-danger">⚠️ 剥奪必要</span>
+                    {% if app.access_revoked_at %}
+                        <br><small>剥奪済み: {{ app.access_revoked_at|date:"Y/m/d H:i" }}</small>
+                    {% endif %}
+                {% elif app.access_revoked_at %}
+                    <span class="badge badge-secondary">剥奪済み</span>
+                    <br><small>{{ app.access_revoked_at|date:"Y/m/d H:i" }}</small>
+                {% else %}
+                    <span class="badge">-</span>
+                {% endif %}
+            </td>
+            <td>{{ app.created_at|date:"Y/m/d H:i" }}</td>
+            <td>
+                <a href="{% url 'application:application_detail' app.id %}" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">詳細</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10" style="text-align: center;">申し込みがありません</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

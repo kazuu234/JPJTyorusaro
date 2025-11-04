@@ -1,0 +1,84 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>値引き申請：手動突合</h2>
+
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'application:discount_application_detail' application.id %}" class="btn btn-secondary">詳細ページに戻る</a>
+    <a href="{% url 'application:discount_application_list' %}" class="btn btn-secondary">値引き申請一覧</a>
+</div>
+
+<div class="info-box">
+    <h3>申請情報</h3>
+    <table>
+        <tr>
+            <th>お名前</th>
+            <td>{{ application.full_name }}</td>
+        </tr>
+        <tr>
+            <th>メールアドレス</th>
+            <td>{{ application.email }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if csv_upload %}
+<div class="info-box">
+    <h3>CSVエントリー選択</h3>
+    <p>最新のCSVアップロード「{{ csv_upload.file_name }}」から、「定期ステータス」が「継続」のエントリーを選択してください。</p>
+    
+    <form method="post" action="{% url 'application:manual_discount_match' application.id %}">
+        {% csrf_token %}
+        
+        <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>選択</th>
+                    <th>メールアドレス</th>
+                    <th>名前</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in csv_entries %}
+                <tr>
+                    <td>
+                        <input type="radio" name="selected_row_index" value="{{ entry.row_index }}" required>
+                        <input type="hidden" name="candidate_email" value="{{ entry.email }}">
+                        <input type="hidden" name="candidate_last_name" value="{{ entry.last_name }}">
+                        <input type="hidden" name="candidate_first_name" value="{{ entry.first_name }}">
+                    </td>
+                    <td>{{ entry.email }}</td>
+                    <td>{{ entry.full_name }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">「継続」ステータスのエントリーが見つかりませんでした。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        
+        {% if csv_entries %}
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">選択したエントリーで突合</button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% else %}
+<div class="info-box">
+    <p class="help-text">CSVアップロードがありません。先にCSVをアップロードしてください。</p>
+</div>
+{% endif %}
+{% endblock %}
+

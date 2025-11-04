@@ -1,0 +1,56 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}form-container{% endblock %}
+
+{% block content %}
+<div class="info-box">
+    <h3>ご案内</h3>
+    <p>Joy Journeyの定期購入をご利用いただいているお客様向けに、無料で夜遊びサロンの利用が可能となるご案内です。</p>
+    <p>以下のフォームに必要事項をご入力の上、お申し込みください。</p>
+    <p style="margin-top: 15px;">
+        <strong>既に夜遊びサロンにご所属いただいている方で、Joy Journeyの定期購入サービスをご利用の方は、</strong>
+        <a href="{% url 'application:discount_application_form' %}" style="color: #4a90e2; text-decoration: underline;">こちらから値引き申請をお願いいたします</a>。
+    </p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+        {{ form.last_name }}
+        {% if form.last_name.help_text %}
+            <span class="help-text">{{ form.last_name.help_text }}</span>
+        {% endif %}
+        {% if form.last_name.errors %}
+            <div class="error-message">{{ form.last_name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+        {{ form.first_name }}
+        {% if form.first_name.help_text %}
+            <span class="help-text">{{ form.first_name.help_text }}</span>
+        {% endif %}
+        {% if form.first_name.errors %}
+            <div class="error-message">{{ form.first_name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.help_text %}
+            <span class="help-text">{{ form.email.help_text }}</span>
+        {% endif %}
+        {% if form.email.errors %}
+            <div class="error-message">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-primary">申し込む</button>
+    </div>
+</form>
+{% endblock %}

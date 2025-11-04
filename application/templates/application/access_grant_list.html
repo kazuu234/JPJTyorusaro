@@ -1,0 +1,117 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>アクセス権付与状況チェック表</h2>
+
+<!-- ナビゲーションタブ -->
+<ul class="nav-tabs">
+    <li class="nav-item">
+        <a href="{% url 'application:application_list' %}" class="nav-link">申し込み一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload_list' %}" class="nav-link">CSVアップロード一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:access_grant_list' %}" class="nav-link active">アクセス権付与状況</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:revocation_list' %}" class="nav-link">アクセス剥奪管理</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:discount_application_list' %}" class="nav-link">値引き申請一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload' %}" class="nav-link" style="background-color: #4a90e2; color: white;">CSVアップロード</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:data_management' %}" class="nav-link">データ管理</a>
+    </li>
+</ul>
+
+<!-- フィルタ -->
+<div class="filter-section">
+    <h4>フィルタ条件</h4>
+    <div class="filter-group">
+        <span style="font-weight: 600; margin-right: 5px;">アクセス:</span>
+        <a href="?" class="filter-btn {% if not access_filter %}active{% endif %}">すべて</a>
+        <a href="?access=no" class="filter-btn {% if access_filter == 'no' %}active{% endif %}">アクセス未付与</a>
+        <a href="?access=yes" class="filter-btn {% if access_filter == 'yes' %}active{% endif %}">アクセス付与済み</a>
+    </div>
+</div>
+
+<form method="post" action="{% url 'application:batch_access_grant' %}" id="batchForm">
+    {% csrf_token %}
+    <div style="margin-bottom: 15px;">
+        <button type="submit" class="btn btn-primary" onclick="return confirm('選択した申し込みにアクセスを付与しますか？')">
+            選択した申し込みに一括アクセス付与
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                <th>ID</th>
+                <th>お名前</th>
+                <th>メールアドレス</th>
+                <th>突合方法</th>
+                <th>突合日時</th>
+                <th>アクセス付与</th>
+                <th>アクセス付与日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>
+                    {% if not app.access_granted %}
+                        <input type="checkbox" name="application_ids" value="{{ app.id }}">
+                    {% endif %}
+                </td>
+                <td>{{ app.id }}</td>
+                <td>{{ app.full_name }}</td>
+                <td>{{ app.email }}</td>
+                <td>{{ app.get_match_method_display|default:"未突合" }}</td>
+                <td>{{ app.matched_at|date:"Y/m/d H:i"|default:"-" }}</td>
+                <td>
+                    {% if app.access_granted %}
+                        <span class="badge badge-success">✅ 付与済み</span>
+                    {% else %}
+                        <span class="badge badge-warning">❌ 未付与</span>
+                    {% endif %}
+                </td>
+                <td>{{ app.access_granted_at|date:"Y/m/d H:i"|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'application:application_detail' app.id %}" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">詳細</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align: center;">突合済みの申し込みがありません</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</form>
+
+<script>
+function toggleAll(checkbox) {
+    const checkboxes = document.querySelectorAll('input[name="application_ids"]');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+}
+</script>
+{% endblock %}
+

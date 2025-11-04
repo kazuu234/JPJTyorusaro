@@ -1,0 +1,53 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}form-container{% endblock %}
+
+{% block content %}
+<div class="alert alert-warning">
+    <h3>⏳ 審査中です</h3>
+    <p>Joy Journeyの定期購入の利用確認を行います。</p>
+    <p>入力された情報を確認するため、審査を行います。しばらくお待ちください。</p>
+</div>
+
+<div class="info-box">
+    <h3>お申し込み情報</h3>
+    <table>
+        <tr>
+            <th>お名前</th>
+            <td>{{ application.full_name }}</td>
+        </tr>
+        <tr>
+            <th>メールアドレス</th>
+            <td>{{ application.email }}</td>
+        </tr>
+        <tr>
+            <th>ステータス</th>
+            <td>
+                <span class="badge badge-pending">{{ application.get_status_display }}</span>
+            </td>
+        </tr>
+        <tr>
+            <th>申し込み日時</th>
+            <td>{{ application.created_at|date:"Y年m月d日 H:i" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="info-box">
+    <h3>次のステップ</h3>
+    {% if application.subscription_verified %}
+        <p>✅ 定期購入の確認が完了しました。</p>
+        <p>次に、夜遊びサロンへのゲストアクセスを行っていただき、Discordのアカウント名をDMで管理者に報告してください。</p>
+        {% if application.discord_display_name or application.discord_account_name %}
+            <p>✅ Discordアカウント名も管理者が登録済みです。</p>
+            <p>管理者が確認後、アクセス権を付与いたします。しばらくお待ちください。</p>
+        {% else %}
+            <p>管理者がDiscordアカウント名を確認・登録後、アクセス権を付与いたします。しばらくお待ちください。</p>
+        {% endif %}
+    {% else %}
+        <p>入力された定期購入情報を確認いたします。</p>
+        <p>確認が完了次第、メールアドレス（{{ application.email }}）にご連絡いたします。</p>
+        <p>お急ぎの場合は、Joy Journey公式までお問い合わせください。</p>
+    {% endif %}
+</div>
+{% endblock %}

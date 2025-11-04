@@ -1,0 +1,104 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>データ管理</h2>
+
+<!-- ナビゲーションタブ -->
+<ul class="nav-tabs">
+    <li class="nav-item">
+        <a href="{% url 'application:application_list' %}" class="nav-link">申し込み一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload_list' %}" class="nav-link">CSVアップロード一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:access_grant_list' %}" class="nav-link">アクセス権付与状況</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:revocation_list' %}" class="nav-link">アクセス剥奪管理</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:discount_application_list' %}" class="nav-link">値引き申請一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload' %}" class="nav-link" style="background-color: #4a90e2; color: white;">CSVアップロード</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:data_management' %}" class="nav-link active">データ管理</a>
+    </li>
+</ul>
+
+<div class="info-box">
+    <h3>現在のデータ件数</h3>
+    <table>
+        <tr>
+            <th>申し込み</th>
+            <td>{{ salon_count }}件</td>
+        </tr>
+        <tr>
+            <th>値引き申請</th>
+            <td>{{ discount_count }}件</td>
+        </tr>
+        <tr>
+            <th>CSVアップロード</th>
+            <td>{{ csv_count }}件</td>
+        </tr>
+        <tr>
+            <th>定期購入ユーザー</th>
+            <td>{{ subscription_count }}件</td>
+        </tr>
+    </table>
+</div>
+
+<div class="alert alert-warning">
+    <h3>⚠️ 警告</h3>
+    <p><strong>全データ削除機能</strong></p>
+    <p>この機能を使用すると、以下のデータが完全に削除されます：</p>
+    <ul>
+        <li>すべての申し込みデータ</li>
+        <li>すべての値引き申請データ</li>
+        <li>すべてのCSVアップロードデータ（ファイルも含む）</li>
+        <li>すべての定期購入ユーザーデータ</li>
+    </ul>
+    <p><strong>この操作は取り消せません。</strong>テストデータの削除など、十分に注意して使用してください。</p>
+</div>
+
+<div class="info-box" style="border-left-color: #dc3545;">
+    <h3 style="color: #dc3545;">全データ削除</h3>
+    <p>すべてのデータを削除する場合は、パスワードを入力してください。</p>
+    
+    <form method="post" onsubmit="return confirm('本当にすべてのデータを削除してもよろしいですか？この操作は取り消せません。');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_all">
+        
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" 
+                   id="password" 
+                   name="password" 
+                   class="form-control" 
+                   required 
+                   autocomplete="off"
+                   placeholder="パスワードを入力してください">
+            {% if password_error %}
+            <div class="error-message">パスワードが正しくありません。</div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-secondary" style="background-color: #dc3545; color: white;">
+                すべてのデータを削除
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

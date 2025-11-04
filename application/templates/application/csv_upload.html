@@ -1,0 +1,74 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- ナビゲーションタブ -->
+<ul class="nav-tabs">
+    <li class="nav-item">
+        <a href="{% url 'application:application_list' %}" class="nav-link">申し込み一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload_list' %}" class="nav-link">CSVアップロード一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:access_grant_list' %}" class="nav-link">アクセス権付与状況</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:revocation_list' %}" class="nav-link">アクセス剥奪管理</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:discount_application_list' %}" class="nav-link">値引き申請一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload' %}" class="nav-link active" style="background-color: #4a90e2; color: white;">CSVアップロード</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:data_management' %}" class="nav-link">データ管理</a>
+    </li>
+</ul>
+
+<div class="info-box">
+    <h3>CSVアップロード</h3>
+    <p>Joy Journeyの定期購入の利用者CSVファイルをアップロードしてください。</p>
+    <p>アップロード後、自動的に申し込み情報と突合処理が行われます。</p>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+        {{ form.csv_file }}
+        {% if form.csv_file.help_text %}
+            <span class="help-text">{{ form.csv_file.help_text }}</span>
+        {% endif %}
+        {% if form.csv_file.errors %}
+            <div class="error-message">{{ form.csv_file.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.file_name.id_for_label }}">{{ form.file_name.label }}</label>
+        {{ form.file_name }}
+        {% if form.file_name.help_text %}
+            <span class="help-text">{{ form.file_name.help_text }}</span>
+        {% endif %}
+        {% if form.file_name.errors %}
+            <div class="error-message">{{ form.file_name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-primary">アップロード</button>
+        <a href="{% url 'application:csv_upload_list' %}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+</form>
+{% endblock %}
+

@@ -1,0 +1,164 @@
+{% extends "application/base.html" %}
+
+{% block container_class %}admin-container{% endblock %}
+
+{% block header_extra %}
+{% if request.session.admin_authenticated %}
+<a href="{% url 'application:admin_logout' %}" class="logout-link">ログアウト</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>CSVアップロード詳細</h2>
+
+<!-- ナビゲーションタブ -->
+<ul class="nav-tabs">
+    <li class="nav-item">
+        <a href="{% url 'application:application_list' %}" class="nav-link">申し込み一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload_list' %}" class="nav-link active">CSVアップロード一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:access_grant_list' %}" class="nav-link">アクセス権付与状況</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:revocation_list' %}" class="nav-link">アクセス剥奪管理</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:discount_application_list' %}" class="nav-link">値引き申請一覧</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:csv_upload' %}" class="nav-link" style="background-color: #4a90e2; color: white;">CSVアップロード</a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'application:data_management' %}" class="nav-link">データ管理</a>
+    </li>
+</ul>
+
+<div class="info-box">
+    <h3>アップロード情報</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <td>{{ upload.id }}</td>
+        </tr>
+        <tr>
+            <th>ファイル名</th>
+            <td>{{ upload.file_name }}</td>
+        </tr>
+        <tr>
+            <th>ステータス</th>
+            <td>
+                <span class="badge badge-{{ upload.status }}">
+                    {{ upload.get_status_display }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>総行数</th>
+            <td>{{ upload.total_rows }}</td>
+        </tr>
+        <tr>
+            <th>継続ユーザー数</th>
+            <td>{{ upload.active_subscriptions }}</td>
+        </tr>
+        <tr>
+            <th>サロン申請突合成功数</th>
+            <td>{{ upload.salon_match_count }}</td>
+        </tr>
+        <tr>
+            <th>アクセス権剥奪必要件数</th>
+            <td>
+                {% if upload.access_revocation_count > 0 %}
+                    <span class="badge badge-danger">{{ upload.access_revocation_count }}件</span>
+                {% else %}
+                    <span class="badge">0件</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>値引き申請突合成功数</th>
+            <td>{{ upload.discount_match_count }}</td>
+        </tr>
+        <tr>
+            <th>値引き剥奪必要件数</th>
+            <td>
+                {% if upload.discount_revocation_count > 0 %}
+                    <span class="badge badge-danger">{{ upload.discount_revocation_count }}件</span>
+                {% else %}
+                    <span class="badge">0件</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>アップロード日時</th>
+            <td>{{ upload.created_at|date:"Y年m月d日 H:i:s" }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if upload.error_message %}
+<div class="alert alert-error">
+    <h3>エラー</h3>
+    <p>{{ upload.error_message }}</p>
+</div>
+{% endif %}
+
+<div class="info-box">
+    <h3>このCSVで突合された申し込み（{{ applications.count }}件）</h3>
+    <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>お名前</th>
+                <th>メールアドレス</th>
+                <th>突合方法</th>
+                <th>ステータス</th>
+                <th>アクセス付与</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.full_name }}</td>
+                <td>{{ app.email }}</td>
+                <td>{{ app.get_match_method_display|default:"未突合" }}</td>
+                <td>
+                    <span class="badge badge-{{ app.status }}">
+                        {{ app.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if app.access_granted %}
+                        <span class="badge badge-success">✅ 付与済み</span>
+                    {% else %}
+                        <span class="badge badge-warning">❌ 未付与</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'application:application_detail' app.id %}" class="btn btn-primary" style="padding: 5px 10px; font-size: 14px;">詳細</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">突合された申し込みがありません</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div style="margin-top: 30px;">
+    <form method="post" action="{% url 'application:csv_upload_delete' upload.id %}" style="display: inline;" onsubmit="return confirm('このCSVアップロードを削除してもよろしいですか？関連する申し込み情報には影響しませんが、ファイルは削除されます。');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary" style="background-color: #dc3545; color: white;">削除</button>
+    </form>
+    <a href="{% url 'application:csv_upload_list' %}" class="btn btn-secondary">CSVアップロード一覧</a>
+</div>
+{% endblock %}
+
