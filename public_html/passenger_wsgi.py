@@ -1,6 +1,7 @@
 """
 Passenger WSGI file for ColorfulBox deployment
-このファイルをpublic_html/またはアプリケーションのルートディレクトリに配置してください
+このファイルをpublic_html/jjyorusaro/に配置してください
+サブドメイン用の設定です
 """
 
 import sys
@@ -8,15 +9,16 @@ import os
 
 # プロジェクトディレクトリをパスに追加
 # 実際のパスに合わせて変更してください
-project_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(project_dir)
-project_path = os.path.join(parent_dir, 'project')  # Djangoプロジェクトのパス
-
-sys.path.insert(0, project_path)
+project_dir = '/home/rhtkvdkh/project/jjyorusaro'
 sys.path.insert(0, project_dir)
 
 # 環境変数を設定
 os.environ['DJANGO_SETTINGS_MODULE'] = 'jpjtorusaro.settings_production'
+
+# 仮想環境のパスを追加（仮想環境を使用する場合）
+venv_python = os.path.join(project_dir, 'venv', 'lib', 'python3.x', 'site-packages')
+if os.path.exists(venv_python):
+    sys.path.insert(0, venv_python)
 
 # Django WSGIアプリケーションをインポート
 from django.core.wsgi import get_wsgi_application

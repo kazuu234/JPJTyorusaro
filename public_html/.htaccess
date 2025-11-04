@@ -1,17 +1,25 @@
-# ColorfulBox用.htaccess設定
+# ColorfulBox用.htaccess設定（サブドメイン用）
 # 静的ファイルとメディアファイルの配信設定
 
 # Python Passenger設定
 PassengerEnabled On
-PassengerAppRoot /home/ユーザー名/project  # 実際のパスに変更
+PassengerAppRoot /home/rhtkvdkh/public_html/jjyorusaro
 PassengerBaseURI /
-PassengerPython /home/ユーザー名/venv/bin/python  # 仮想環境のPythonパスに変更
+PassengerPython /home/rhtkvdkh/project/jjyorusaro/venv/bin/python  # 仮想環境のPythonパスに変更
 
-# 静的ファイルの配信
+# 静的ファイルとメディアファイルの配信
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
+    
+    # 静的ファイルとメディアファイルは直接配信
     RewriteRule ^static/(.*)$ /static/$1 [L]
     RewriteRule ^media/(.*)$ /media/$1 [L]
+    
+    # その他のリクエストはDjangoにルーティング
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ passenger_wsgi.py/$1 [L]
 </IfModule>
 
 # セキュリティヘッダー
